@@ -1,0 +1,6 @@
+framework module Pods_Jet2DemoApp {
+  umbrella header "Pods-Jet2DemoApp-umbrella.h"
+
+  export *
+  module * { export * }
+}
