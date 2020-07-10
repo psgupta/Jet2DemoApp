@@ -247,7 +247,6 @@ func fetchDataForEntity(entityName:EntityTitle)-> [Any]? {
         let result = try managedObjectContext.fetch(fetchRequest) as! [NSManagedObject]
         switch entityName {
         case .ArticleEntity:
-           
            return getArticleModelObject(result as? [Article])
         case .MediaEntity:
             break
@@ -255,7 +254,7 @@ func fetchDataForEntity(entityName:EntityTitle)-> [Any]? {
             break
         }
     } catch {
-        //print("<<<Failed>>>")
+        print("<<<Failed to fetch data>>>")
     }
 
     return nil

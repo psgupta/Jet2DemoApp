@@ -11,56 +11,60 @@ import Alamofire
 import SDWebImage
 
 class HomeVC: UIViewController {
-   
+    
     var shouldLoadMore = true
-    var arrArticle:[ArticleModel] = []
+    var arrArticle:[ArticleViewModel] = []
     var currentPageIndexOfArticle = 1
     
     @IBOutlet weak var tableView: UITableView!
     
     override func viewDidLoad(){
         super.viewDidLoad()
-        let arrArticles = fetchDataForEntity(entityName: .ArticleEntity)
-        self.arrArticle = arrArticles as! [ArticleModel]
+        self.tableView.tableFooterView = UIView()
+        
+        let arrArticles = fetchDataForEntity(entityName: .ArticleEntity) as! [ArticleModel]
+        for article in arrArticles{
+            self.arrArticle.append(ArticleViewModel.init(with: article))
+        }
         fetchArticles(for: currentPageIndexOfArticle)
     }
     
     
     //MARK: LOAD MORE
-        func showBottomRefreshController(willShowLoader:Bool)  {
+    func showBottomRefreshController(willShowLoader:Bool)  {
+        
+        if willShowLoader{
+            addFooterViewToRefreshTable()
+        }else{
+            removeFooteViewFromTableView()
+        }
+    }
+    
+    func addFooterViewToRefreshTable(){
+        let refresh = UIActivityIndicatorView.init(style: UIActivityIndicatorView.Style.medium)
+        refresh.startAnimating()
+        self.tableView.tableFooterView = refresh
+    }
+    
+    func removeFooteViewFromTableView(){
+        self.tableView.tableFooterView = nil
+    }
+    
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if scrollView.tag == kTAG_TABLEVIEW && self.arrArticle.count>=kMAXPAGELIMIT {
+            // UITableView only moves in one direction, y axis
+            let currentOffset = scrollView.contentOffset.y
+            let maximumOffset = scrollView.contentSize.height - scrollView.frame.size.height
             
-            if willShowLoader{
-                addFooterViewToRefreshTable()
-            }else{
-                removeFooteViewFromTableView()
+            // Change 10.0 to adjust the distance from bottom
+            if maximumOffset - currentOffset <= 10.0 && shouldLoadMore{
+                currentPageIndexOfArticle+=1
+                shouldLoadMore = false
+                self.fetchArticles(for: currentPageIndexOfArticle)
             }
         }
-        
-        func addFooterViewToRefreshTable(){
-            let refresh = UIActivityIndicatorView.init(style: UIActivityIndicatorView.Style.medium)
-            refresh.startAnimating()
-            self.tableView.tableFooterView = refresh
-        }
-        
-        func removeFooteViewFromTableView(){
-            self.tableView.tableFooterView = nil
-        }
-        
-        func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-            if scrollView.tag == kTAG_TABLEVIEW && self.arrArticle.count>=kMAXPAGELIMIT {
-                // UITableView only moves in one direction, y axis
-                let currentOffset = scrollView.contentOffset.y
-                let maximumOffset = scrollView.contentSize.height - scrollView.frame.size.height
-                
-                // Change 10.0 to adjust the distance from bottom
-                if maximumOffset - currentOffset <= 10.0 && shouldLoadMore{
-                    currentPageIndexOfArticle+=1
-                    shouldLoadMore = false
-                    self.fetchArticles(for: currentPageIndexOfArticle)
-                }
-            }
-        }
-
+    }
+    
 }
 
 
@@ -68,48 +72,30 @@ class HomeVC: UIViewController {
 
 //MARK: Display
 extension HomeVC : UITableViewDelegate,UITableViewDataSource{
+    func numberOfSections(in tableView: UITableView) -> Int {
+        if self.arrArticle.count == 0{
+            let activityIndicator = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.medium)
+            activityIndicator.frame = CGRect(x: 0, y: 0, width: 46, height: 46)
+            activityIndicator.startAnimating()
+            
+            tableView.backgroundView = activityIndicator
+        }else{
+            tableView.backgroundView = nil
+        }
+        return 1
+    }
+    
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         self.arrArticle.count
     }
     
-    fileprivate func displayNumber(_ number: Float, _ strNumberToDisplay: inout String, _ articleObj: ArticleModel) {
-        if number>1000{
-            let roundOffValue = String(format: "%.1f", number/1000)
-            strNumberToDisplay = "\(roundOffValue)K"
-        }else{
-            strNumberToDisplay = articleObj.likes
-        }
-    }
-    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: strArticleCellIdentifier, for: indexPath) as! ArticleTableViewCell
-        let articleObj = self.arrArticle[indexPath.row]
+        let articleViewModalObj = self.arrArticle[indexPath.row]
         
-        cell.viewOfMediaFile.isHidden = articleObj.mediaObject.image == "" ? true : false
+        cell.articleCellDidSet(articleViewModalObj, cell)
         
-        if let url = URL(string: articleObj.mediaObject.image){
-            cell.imgViewArticle?.sd_setImage(with: url, completed: nil)
-        }
-        
-        if let urlAvatar = URL(string: articleObj.userObject.avatar){
-            cell.imgViewUser?.sd_setImage(with: urlAvatar, completed: nil)
-        }
-        
-        
-        cell.lblUserName.text = articleObj.userObject.name+" "+articleObj.userObject.lastname
-        cell.lblUserDesignation.text = articleObj.userObject.designation
-        cell.txtViewTitle.text = articleObj.content
-        
-        var likesToDisplay = ""
-        let likes =  Float(articleObj.likes) ?? 0
-        displayNumber(likes, &likesToDisplay, articleObj)
-        cell.btnLikes.setTitle(likesToDisplay+" Likes", for: .normal)
-        
-        var commentsToDisplay = ""
-        let comments =  Float(articleObj.comments) ?? 0
-        displayNumber(comments, &commentsToDisplay, articleObj)
-        cell.btnComments.setTitle(commentsToDisplay+" Comments", for: .normal)
-       
         return cell
     }
     
@@ -124,7 +110,7 @@ extension HomeVC : UITableViewDelegate,UITableViewDataSource{
 //MARK: Fetch
 extension HomeVC {
     func fetchArticles(for pageNumber:Int) {
-
+        
         if pageNumber > 1{
             showBottomRefreshController(willShowLoader: true)
         }
@@ -141,13 +127,15 @@ extension HomeVC {
                     self.arrArticle.removeAll()
                 }
                 
+                
                 if let arrData = arrData{
-                    self.arrArticle.append(contentsOf: (arrData as! [ArticleModel]))
+                    for article in arrData{
+                        self.arrArticle.append(ArticleViewModel.init(with:(article as! ArticleModel)))
+                    }
                     self.shouldLoadMore = arrData.count == 0 ? false : true
                 }
                 
                 self.showBottomRefreshController(willShowLoader: false)
-
                 self.tableView.reloadData()
             }
             

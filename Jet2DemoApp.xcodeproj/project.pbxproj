@@ -22,6 +22,8 @@
 		4C908E3524B63CEE00B22FEF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4C908E3324B63CEE00B22FEF /* LaunchScreen.storyboard */; };
 		4C908E4024B63CEE00B22FEF /* Jet2DemoAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C908E3F24B63CEE00B22FEF /* Jet2DemoAppTests.swift */; };
 		4C908E4B24B63CEE00B22FEF /* Jet2DemoAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C908E4A24B63CEE00B22FEF /* Jet2DemoAppUITests.swift */; };
+		4CC640EE24B8C0D10066A6A9 /* SupportingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CC640ED24B8C0D10066A6A9 /* SupportingExtensions.swift */; };
+		4CC640F024B8C4950066A6A9 /* jet2.com.png in Resources */ = {isa = PBXBuildFile; fileRef = 4CC640EF24B8C4950066A6A9 /* jet2.com.png */; };
 		96CE06002ECF5FB6727C520C /* Pods_Jet2DemoApp_Jet2DemoAppUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 50C8B78120642A6C81F34D56 /* Pods_Jet2DemoApp_Jet2DemoAppUITests.framework */; };
 		D4C8BD539B07AFD9605C015B /* Pods_Jet2DemoApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 510E3A1B4505D1331B78C82E /* Pods_Jet2DemoApp.framework */; };
 /* End PBXBuildFile section */
@@ -64,6 +66,8 @@
 		4C908E4624B63CEE00B22FEF /* Jet2DemoAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Jet2DemoAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C908E4A24B63CEE00B22FEF /* Jet2DemoAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Jet2DemoAppUITests.swift; sourceTree = "<group>"; };
 		4C908E4C24B63CEE00B22FEF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4CC640ED24B8C0D10066A6A9 /* SupportingExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SupportingExtensions.swift; sourceTree = "<group>"; };
+		4CC640EF24B8C4950066A6A9 /* jet2.com.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = jet2.com.png; sourceTree = "<group>"; };
 		50C8B78120642A6C81F34D56 /* Pods_Jet2DemoApp_Jet2DemoAppUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Jet2DemoApp_Jet2DemoAppUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		510E3A1B4505D1331B78C82E /* Pods_Jet2DemoApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Jet2DemoApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		54283E219444DC21F603AB11 /* Pods-Jet2DemoApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Jet2DemoApp.debug.xcconfig"; path = "Target Support Files/Pods-Jet2DemoApp/Pods-Jet2DemoApp.debug.xcconfig"; sourceTree = "<group>"; };
@@ -180,12 +184,14 @@
 			children = (
 				4C908E2524B63CEC00B22FEF /* AppDelegate.swift */,
 				4C908E2724B63CEC00B22FEF /* SceneDelegate.swift */,
+				4CC640EC24B8C0D10066A6A9 /* SupportingExtensions */,
 				4C21115524B85DBC00A219A0 /* ModelClass */,
 				4C21115024B7906D00A219A0 /* Constants */,
 				4C0B2BE724B77D1D00C4B743 /* ViewControllers */,
 				4C0B2BE824B77D3B00C4B743 /* CoreData */,
 				4C0B2BE924B77D4800C4B743 /* StoryBoard */,
 				4C908E3124B63CEE00B22FEF /* Assets.xcassets */,
+				4CC640EF24B8C4950066A6A9 /* jet2.com.png */,
 				4C908E3324B63CEE00B22FEF /* LaunchScreen.storyboard */,
 				4C908E3624B63CEE00B22FEF /* Info.plist */,
 				4C908E2E24B63CEC00B22FEF /* Jet2DemoApp.xcdatamodeld */,
@@ -209,6 +215,14 @@
 				4C908E4C24B63CEE00B22FEF /* Info.plist */,
 			);
 			path = Jet2DemoAppUITests;
+			sourceTree = "<group>";
+		};
+		4CC640EC24B8C0D10066A6A9 /* SupportingExtensions */ = {
+			isa = PBXGroup;
+			children = (
+				4CC640ED24B8C0D10066A6A9 /* SupportingExtensions.swift */,
+			);
+			path = SupportingExtensions;
 			sourceTree = "<group>";
 		};
 		553936853F4367FAA79ED653 /* Pods */ = {
@@ -344,6 +358,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4C908E3524B63CEE00B22FEF /* LaunchScreen.storyboard in Resources */,
+				4CC640F024B8C4950066A6A9 /* jet2.com.png in Resources */,
 				4C908E3224B63CEE00B22FEF /* Assets.xcassets in Resources */,
 				4C908E2D24B63CEC00B22FEF /* Main.storyboard in Resources */,
 			);
@@ -473,6 +488,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4CC640EE24B8C0D10066A6A9 /* SupportingExtensions.swift in Sources */,
 				4C908E2A24B63CEC00B22FEF /* HomeVC.swift in Sources */,
 				4C21115724B85DBC00A219A0 /* ArticleViewModel.swift in Sources */,
 				4C908E2624B63CEC00B22FEF /* AppDelegate.swift in Sources */,

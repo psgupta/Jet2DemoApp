@@ -19,3 +19,4 @@ enum EntityTitle:String{
 let kMAXPAGELIMIT = 10
 let kTAG_TABLEVIEW = 88
 let strArticleCellIdentifier = "articleCell"
+let kAppDateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
