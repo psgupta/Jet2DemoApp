@@ -12,8 +12,9 @@ import SDWebImage
 
 class HomeVC: UIViewController {
    
-    var shouldLoadMore = false
+    var shouldLoadMore = true
     var arrArticle:[ArticleModel] = []
+    var currentPageIndexOfArticle = 1
     
     @IBOutlet weak var tableView: UITableView!
     
@@ -21,9 +22,45 @@ class HomeVC: UIViewController {
         super.viewDidLoad()
         let arrArticles = fetchDataForEntity(entityName: .ArticleEntity)
         self.arrArticle = arrArticles as! [ArticleModel]
-        fetchArticles()
+        fetchArticles(for: currentPageIndexOfArticle)
     }
     
+    
+    //MARK: LOAD MORE
+        func showBottomRefreshController(willShowLoader:Bool)  {
+            
+            if willShowLoader{
+                addFooterViewToRefreshTable()
+            }else{
+                removeFooteViewFromTableView()
+            }
+        }
+        
+        func addFooterViewToRefreshTable(){
+            let refresh = UIActivityIndicatorView.init(style: UIActivityIndicatorView.Style.medium)
+            refresh.startAnimating()
+            self.tableView.tableFooterView = refresh
+        }
+        
+        func removeFooteViewFromTableView(){
+            self.tableView.tableFooterView = nil
+        }
+        
+        func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+            if scrollView.tag == kTAG_TABLEVIEW && self.arrArticle.count>=kMAXPAGELIMIT {
+                // UITableView only moves in one direction, y axis
+                let currentOffset = scrollView.contentOffset.y
+                let maximumOffset = scrollView.contentSize.height - scrollView.frame.size.height
+                
+                // Change 10.0 to adjust the distance from bottom
+                if maximumOffset - currentOffset <= 10.0 && shouldLoadMore{
+                    currentPageIndexOfArticle+=1
+                    shouldLoadMore = false
+                    self.fetchArticles(for: currentPageIndexOfArticle)
+                }
+            }
+        }
+
 }
 
 
@@ -33,6 +70,15 @@ class HomeVC: UIViewController {
 extension HomeVC : UITableViewDelegate,UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         self.arrArticle.count
+    }
+    
+    fileprivate func displayNumber(_ number: Float, _ strNumberToDisplay: inout String, _ articleObj: ArticleModel) {
+        if number>1000{
+            let roundOffValue = String(format: "%.1f", number/1000)
+            strNumberToDisplay = "\(roundOffValue)K"
+        }else{
+            strNumberToDisplay = articleObj.likes
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -53,28 +99,55 @@ extension HomeVC : UITableViewDelegate,UITableViewDataSource{
         cell.lblUserName.text = articleObj.userObject.name+" "+articleObj.userObject.lastname
         cell.lblUserDesignation.text = articleObj.userObject.designation
         cell.txtViewTitle.text = articleObj.content
-        cell.btnLikes.setTitle(articleObj.likes+" Likes", for: .normal)
-        cell.btnComments.setTitle(articleObj.comments+" Comments", for: .normal)
+        
+        var likesToDisplay = ""
+        let likes =  Float(articleObj.likes) ?? 0
+        displayNumber(likes, &likesToDisplay, articleObj)
+        cell.btnLikes.setTitle(likesToDisplay+" Likes", for: .normal)
+        
+        var commentsToDisplay = ""
+        let comments =  Float(articleObj.comments) ?? 0
+        displayNumber(comments, &commentsToDisplay, articleObj)
+        cell.btnComments.setTitle(commentsToDisplay+" Comments", for: .normal)
+       
         return cell
     }
     
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
     
 }
 
 
 //MARK: Fetch
 extension HomeVC {
-    func fetchArticles() {
+    func fetchArticles(for pageNumber:Int) {
+
+        if pageNumber > 1{
+            showBottomRefreshController(willShowLoader: true)
+        }
+        
+        
+        let strArticleAPIURL = "https://5e99a9b1bc561b0016af3540.mockapi.io/jet2/api/v1/blogs?page=\(pageNumber)&limit=\(kMAXPAGELIMIT)"
         // 1 - Add API URL
         let request = AF.request(strArticleAPIURL)
         // 2 - Ask for response from server
         request.responseJSON { (data) in
-            //        print(data)
             let arrResponse = (data.value) as! [[String:Any]]
             saveJSONObjectToCoreDataForEntity(entityName: .ArticleEntity, arrData: arrResponse) { (isSaved, arrData) in
-                //            print(arrData as Any)
-                self.arrArticle = arrData as! [ArticleModel]
+                if pageNumber == 1{
+                    self.arrArticle.removeAll()
+                }
+                
+                if let arrData = arrData{
+                    self.arrArticle.append(contentsOf: (arrData as! [ArticleModel]))
+                    self.shouldLoadMore = arrData.count == 0 ? false : true
+                }
+                
+                self.showBottomRefreshController(willShowLoader: false)
+
                 self.tableView.reloadData()
             }
             

@@ -133,7 +133,12 @@ fileprivate func getUserManagedObject(_ arrUsers: [[String:Any]],
 
 //MARK: SAVE
 func saveJSONObjectToCoreDataForEntity(entityName:EntityTitle,arrData:[[String:Any]],completion:CoreDataOperationsCompletion?){
-    if arrData.count==0{return}
+    if arrData.count==0{
+        if let completion = completion {
+            completion(false,nil)
+        }
+        return
+    }
     completionBlockCoreData = completion
 
     let entityObj = NSEntityDescription.entity(forEntityName: entityName.rawValue, in: managedObjectContext)!
@@ -236,9 +241,13 @@ func fetchDataForEntity(entityName:EntityTitle)-> [Any]? {
     let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName.rawValue)
 
     do {
+        let sortDescriptor = NSSortDescriptor(key: "createdAt", ascending: false)
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        fetchRequest.fetchLimit = kMAXPAGELIMIT
         let result = try managedObjectContext.fetch(fetchRequest) as! [NSManagedObject]
         switch entityName {
         case .ArticleEntity:
+           
            return getArticleModelObject(result as? [Article])
         case .MediaEntity:
             break
