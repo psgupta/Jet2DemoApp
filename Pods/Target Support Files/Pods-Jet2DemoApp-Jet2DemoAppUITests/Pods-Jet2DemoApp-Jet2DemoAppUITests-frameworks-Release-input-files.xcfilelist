@@ -1,2 +1,3 @@
 ${PODS_ROOT}/Target Support Files/Pods-Jet2DemoApp-Jet2DemoAppUITests/Pods-Jet2DemoApp-Jet2DemoAppUITests-frameworks.sh
 ${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework
+${BUILT_PRODUCTS_DIR}/SDWebImage/SDWebImage.framework

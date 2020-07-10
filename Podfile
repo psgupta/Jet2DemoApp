@@ -8,6 +8,7 @@ target 'Jet2DemoApp' do
   # Pods for Jet2DemoApp
 
   pod 'Alamofire'
+  pod 'SDWebImage', '~> 5.0'
 
   target 'Jet2DemoAppTests' do
     inherit! :search_paths

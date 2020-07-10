@@ -8,40 +8,53 @@
 
 import UIKit
 import Alamofire
+import SDWebImage
 
 class HomeVC: UIViewController {
-
-    let strArticleAPIURL = "https://5e99a9b1bc561b0016af3540.mockapi.io/jet2/api/v1/blogs?page=1&limit=10"
-    let strArticleCellIdentifier = "articleCell"
+   
+    var shouldLoadMore = false
+    var arrArticle:[ArticleModel] = []
+    
+    @IBOutlet weak var tableView: UITableView!
+    
     override func viewDidLoad(){
         super.viewDidLoad()
-        
-       fetchArticles()
+        let arrArticles = fetchDataForEntity(entityName: .ArticleEntity)
+        self.arrArticle = arrArticles as! [ArticleModel]
+        fetchArticles()
     }
-
-
+    
 }
 
 
+
+
+//MARK: Display
 extension HomeVC : UITableViewDelegate,UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        3
+        self.arrArticle.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: strArticleCellIdentifier, for: indexPath) as! ArticleTableViewCell
+        let articleObj = self.arrArticle[indexPath.row]
         
-        if indexPath.row == 1{
-            cell.viewOfMediaFile.isHidden = true
-            cell.viewOfTitle.isHidden = false
-        }else if indexPath.row == 2{
-            cell.viewOfTitle.isHidden = true
-            cell.viewOfMediaFile.isHidden = false
-        }else{
-            cell.viewOfTitle.isHidden = false
-            cell.viewOfMediaFile.isHidden = false
+        cell.viewOfMediaFile.isHidden = articleObj.mediaObject.image == "" ? true : false
+        
+        if let url = URL(string: articleObj.mediaObject.image){
+            cell.imgViewArticle?.sd_setImage(with: url, completed: nil)
         }
         
+        if let urlAvatar = URL(string: articleObj.userObject.avatar){
+            cell.imgViewUser?.sd_setImage(with: urlAvatar, completed: nil)
+        }
+        
+        
+        cell.lblUserName.text = articleObj.userObject.name+" "+articleObj.userObject.lastname
+        cell.lblUserDesignation.text = articleObj.userObject.designation
+        cell.txtViewTitle.text = articleObj.content
+        cell.btnLikes.setTitle(articleObj.likes+" Likes", for: .normal)
+        cell.btnComments.setTitle(articleObj.comments+" Comments", for: .normal)
         return cell
     }
     
@@ -49,13 +62,22 @@ extension HomeVC : UITableViewDelegate,UITableViewDataSource{
     
 }
 
+
+//MARK: Fetch
 extension HomeVC {
-  func fetchArticles() {
-    // 1 - Add API URL
-    let request = AF.request(strArticleAPIURL)
-    // 2 - Ask for response from server
-    request.responseJSON { (data) in
-      print(data)
+    func fetchArticles() {
+        // 1 - Add API URL
+        let request = AF.request(strArticleAPIURL)
+        // 2 - Ask for response from server
+        request.responseJSON { (data) in
+            //        print(data)
+            let arrResponse = (data.value) as! [[String:Any]]
+            saveJSONObjectToCoreDataForEntity(entityName: .ArticleEntity, arrData: arrResponse) { (isSaved, arrData) in
+                //            print(arrData as Any)
+                self.arrArticle = arrData as! [ArticleModel]
+                self.tableView.reloadData()
+            }
+            
+        }
     }
-  }
 }

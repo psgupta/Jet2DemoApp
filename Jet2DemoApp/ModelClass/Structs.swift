@@ -9,9 +9,9 @@
 import Foundation
 
 struct ArticleModel{
-    var comments:Int
-    var likes:Int
-    var articleId:Int
+    var comments:String
+    var likes:String
+    var articleId:String
     var content:String
     var createdAt:String
     var mediaObject:MediaModel
@@ -19,8 +19,8 @@ struct ArticleModel{
 }
 
 struct UserModel{
-    var blogId:Int
-    var userId:Int
+    var blogId:String
+    var userId:String
     var about:String
     var avatar:String
     var city:String
@@ -31,8 +31,8 @@ struct UserModel{
 }
 
 struct MediaModel{
-    var blogId:Int
-    var mediaId:Int
+    var blogId:String
+    var mediaId:String
     var createdAt:String
     var image:String
     var title:String
